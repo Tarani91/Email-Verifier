@@ -33,8 +33,11 @@ async def check_domain_and_mx(domain: str) -> Tuple[bool, bool, str, str]:
     reason = ""
 
     try:
-        # Step 1: Check MX records
-        mx_answers = await resolver.resolve(domain_lower, "MX")
+        # Step 1: Check MX records with strict timeout
+        mx_answers = await asyncio.wait_for(
+            resolver.resolve(domain_lower, "MX"),
+            timeout=settings.DNS_TIMEOUT_SECONDS + 0.5
+        )
         if mx_answers and len(mx_answers) > 0:
             domain_exists = True
             has_mx = True
@@ -45,7 +48,10 @@ async def check_domain_and_mx(domain: str) -> Tuple[bool, bool, str, str]:
     except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
         # MX record not found, check A / AAAA record as fallback mail server
         try:
-            a_answers = await resolver.resolve(domain_lower, "A")
+            a_answers = await asyncio.wait_for(
+                resolver.resolve(domain_lower, "A"),
+                timeout=settings.DNS_TIMEOUT_SECONDS + 0.5
+            )
             if a_answers and len(a_answers) > 0:
                 domain_exists = True
                 has_mx = False
@@ -58,7 +64,7 @@ async def check_domain_and_mx(domain: str) -> Tuple[bool, bool, str, str]:
             domain_exists = False
             has_mx = False
             reason = "Domain does not exist or has no DNS records"
-    except dns.resolver.Timeout:
+    except (dns.resolver.Timeout, asyncio.TimeoutError):
         domain_exists = True  # Assume domain exists to avoid harsh penalty
         has_mx = False
         reason = "DNS lookup timed out"

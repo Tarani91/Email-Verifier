@@ -29,6 +29,11 @@ export default function ProgressTracker({ jobStatus }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {status === 'pending' && (
+            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Preparing Verification
+            </span>
+          )}
           {status === 'processing' && (
             <span className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verification in Progress

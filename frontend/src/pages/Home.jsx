@@ -6,7 +6,7 @@ import MetricCards from '../components/MetricCards';
 import DashboardCharts from '../components/DashboardCharts';
 import EmailTable from '../components/EmailTable';
 
-import { uploadFile, startVerification, getJobStatus } from '../services/api';
+import { uploadFile, startVerification, getJobStatus, getErrorMessage } from '../services/api';
 
 export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
@@ -14,16 +14,19 @@ export default function Home() {
   const [previewData, setPreviewData] = useState(null);
   const [activeJobId, setActiveJobId] = useState(null);
   const [jobStatus, setJobStatus] = useState(null);
+  const [uploadError, setUploadError] = useState('');
 
   const pollTimerRef = useRef(null);
 
   const handleFileSelected = async (file) => {
     setIsUploading(true);
+    setUploadError('');
     try {
       const data = await uploadFile(file);
       setPreviewData(data);
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to upload file');
+      console.error('File upload failed:', err);
+      setUploadError(getErrorMessage(err, 'Failed to upload file'));
     } finally {
       setIsUploading(false);
     }
@@ -32,13 +35,15 @@ export default function Home() {
   const handleStartVerification = async () => {
     if (!previewData) return;
     setIsStarting(true);
+    setUploadError('');
     try {
       const res = await startVerification(previewData.job_id);
       setActiveJobId(previewData.job_id);
       setPreviewData(null);
       fetchStatus(previewData.job_id);
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to start verification job');
+      console.error('Start verification failed:', err);
+      setUploadError(getErrorMessage(err, 'Failed to start verification job'));
     } finally {
       setIsStarting(false);
     }
@@ -49,19 +54,25 @@ export default function Home() {
       const status = await getJobStatus(jobId);
       setJobStatus(status);
       
-      if (status.status === 'processing') {
+      // Continue polling if the job is still pending or actively processing
+      if (status.status === 'pending' || status.status === 'processing') {
         pollTimerRef.current = setTimeout(() => fetchStatus(jobId), 1500);
       }
     } catch (err) {
       console.error('Failed to fetch job status:', err);
+      // Auto-retry after 3s on transient network/HTTP error instead of killing polling
+      pollTimerRef.current = setTimeout(() => fetchStatus(jobId), 3000);
     }
   };
 
   useEffect(() => {
+    if (activeJobId) {
+      fetchStatus(activeJobId);
+    }
     return () => {
       if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
     };
-  }, []);
+  }, [activeJobId]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -77,7 +88,12 @@ export default function Home() {
 
       {/* File Upload Section */}
       {!activeJobId && (
-        <FileUploader onFileSelected={handleFileSelected} isUploading={isUploading} />
+        <FileUploader
+          onFileSelected={handleFileSelected}
+          isUploading={isUploading}
+          serverError={uploadError}
+          onClearError={() => setUploadError('')}
+        />
       )}
 
       {/* Preview Modal */}
@@ -114,7 +130,7 @@ export default function Home() {
 
           <DashboardCharts stats={jobStatus.stats} />
 
-          <EmailTable jobId={activeJobId} />
+          <EmailTable jobId={activeJobId} processedCount={jobStatus.processed_emails} />
         </div>
       )}
     </div>

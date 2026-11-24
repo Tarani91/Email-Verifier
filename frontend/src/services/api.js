@@ -9,12 +9,29 @@ const api = axios.create({
   },
 });
 
+export const getErrorMessage = (err, fallback = 'An error occurred') => {
+  if (!err) return fallback;
+  if (err.response?.data?.detail) {
+    const detail = err.response.data.detail;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+      return detail.map(item => item.msg || JSON.stringify(item)).join(', ');
+    }
+    if (typeof detail === 'object') return detail.msg || JSON.stringify(detail);
+  }
+  if (err.response?.data?.message) return err.response.data.message;
+  if (err.message === 'Network Error' || !err.response) {
+    return 'Unable to connect to the backend server. Please ensure the API is running at http://localhost:8000.';
+  }
+  return err.message || fallback;
+};
+
 export const uploadFile = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
   const response = await api.post('/upload', formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      'Content-Type': undefined,
     },
   });
   return response.data;
@@ -50,6 +67,36 @@ export const getJobHistory = async (limit = 20, offset = 0) => {
 
 export const getDownloadUrl = (jobId, format = 'csv') => {
   return `${API_BASE_URL}/download/${format}/${jobId}`;
+};
+
+// ── Known Emails Registry ─────────────────────────────────────────────────
+
+export const addKnownEmails = async (emails) => {
+  // emails: array of { email, label? }
+  const response = await api.post('/known-emails/add', { emails });
+  return response.data;
+};
+
+export const getKnownEmails = async (page = 1, limit = 50, search = '') => {
+  const params = { page, limit };
+  if (search) params.search = search;
+  const response = await api.get('/known-emails', { params });
+  return response.data;
+};
+
+export const getKnownEmailStats = async () => {
+  const response = await api.get('/known-emails/stats');
+  return response.data;
+};
+
+export const deleteKnownEmail = async (emailId) => {
+  const response = await api.delete(`/known-emails/${emailId}`);
+  return response.data;
+};
+
+export const clearKnownEmails = async () => {
+  const response = await api.delete('/known-emails');
+  return response.data;
 };
 
 export default api;

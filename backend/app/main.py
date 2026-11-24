@@ -8,6 +8,9 @@ from app.core.logging import setup_logging
 from app.db.database import init_db
 from app.api.v1.router import api_router
 
+# Import all models so SQLAlchemy registers them before create_all()
+from app.models import email_record, verification_job, known_email  # noqa: F401
+
 setup_logging()
 
 @asynccontextmanager

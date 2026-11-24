@@ -105,6 +105,9 @@ async def start_verification(
     if job.status == "processing":
         return {"message": "Job is already processing.", "job_id": job.id, "status": job.status}
 
+    # Update DB status synchronously so immediate GET /job/{job_id} queries see 'processing'
+    await repo.update_job_status(job.id, "processing")
+
     # Re-parse raw rows from saved file
     raw_rows, _ = parse_uploaded_file(job.file_path)
 
@@ -226,6 +229,7 @@ async def get_job_results(
             "is_free_provider": rec.is_free_provider,
             "is_business_email": rec.is_business_email,
             "is_duplicate": rec.is_duplicate,
+            "is_known_duplicate": rec.is_known_duplicate,
             "is_syntax_valid": rec.is_syntax_valid
         })
 

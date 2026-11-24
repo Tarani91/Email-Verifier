@@ -12,6 +12,10 @@ backend/uploads/*
 backend/exports/*
 !backend/exports/.gitkeep
 backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+.env
+
 .pytest_cache/
 
 # Node & Frontend

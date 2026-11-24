@@ -1,13 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, FileSpreadsheet, FileText, AlertCircle } from 'lucide-react';
 
-export default function FileUploader({ onFileSelected, isUploading }) {
+export default function FileUploader({ onFileSelected, isUploading, serverError, onClearError }) {
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState('');
   const inputRef = useRef(null);
 
   const validateFile = (file) => {
     setError('');
+    if (onClearError) onClearError();
     if (!file) return false;
     
     const validExtensions = ['.csv', '.xlsx', '.xls'];
@@ -114,10 +115,10 @@ export default function FileUploader({ onFileSelected, isUploading }) {
         )}
       </div>
 
-      {error && (
-        <div className="mt-4 flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{error}</span>
+      {(error || serverError) && (
+        <div className="mt-4 flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm shadow-lg backdrop-blur-md">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
+          <span className="font-medium">{error || serverError}</span>
         </div>
       )}
     </div>

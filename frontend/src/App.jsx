@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import History from './pages/History';
+import KnownEmails from './pages/KnownEmails';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('verify');
@@ -13,6 +14,7 @@ export default function App() {
       <main className="flex-1">
         {activeTab === 'verify' && <Home />}
         {activeTab === 'history' && <History />}
+        {activeTab === 'known' && <KnownEmails />}
       </main>
 
       <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">

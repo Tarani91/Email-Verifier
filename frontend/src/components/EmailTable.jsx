@@ -11,6 +11,7 @@ const STATUS_BADGES = {
   'No MX Record': 'bg-orange-500/20 text-orange-300 border-orange-500/40',
   'Disposable': 'bg-amber-500/20 text-amber-300 border-amber-500/40',
   'Duplicate': 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+  'Known Duplicate': 'bg-violet-500/20 text-violet-300 border-violet-500/40',
   'Role Account': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
 };
 
@@ -23,10 +24,11 @@ const ROW_HIGHLIGHTS = {
   'No MX Record': 'bg-amber-950/30 hover:bg-amber-900/40 border-l-4 border-l-amber-500',
   'Disposable': 'bg-yellow-950/30 hover:bg-yellow-900/40 border-l-4 border-l-yellow-500',
   'Duplicate': 'bg-purple-950/30 hover:bg-purple-900/40 border-l-4 border-l-purple-500',
+  'Known Duplicate': 'bg-violet-950/40 hover:bg-violet-900/50 border-l-4 border-l-violet-500',
   'Role Account': 'bg-indigo-950/20 hover:bg-indigo-900/30 border-l-4 border-l-indigo-500',
 };
 
-export default function EmailTable({ jobId }) {
+export default function EmailTable({ jobId, processedCount }) {
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -52,7 +54,7 @@ export default function EmailTable({ jobId }) {
 
   useEffect(() => {
     fetchResults();
-  }, [jobId, page, statusFilter]);
+  }, [jobId, page, statusFilter, processedCount]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -124,6 +126,7 @@ export default function EmailTable({ jobId }) {
           <option value="No MX Record">No MX Record</option>
           <option value="Disposable">Disposable</option>
           <option value="Duplicate">Duplicate</option>
+          <option value="Known Duplicate">Known Duplicate</option>
           <option value="Role Account">Role Account</option>
         </select>
       </div>

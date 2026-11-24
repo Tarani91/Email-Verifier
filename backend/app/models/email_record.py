@@ -23,6 +23,7 @@ class EmailRecord(Base):
     is_free_provider: Mapped[bool] = mapped_column(Boolean, default=False)
     is_business_email: Mapped[bool] = mapped_column(Boolean, default=False)
     is_duplicate: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_known_duplicate: Mapped[bool] = mapped_column(Boolean, default=False)
     is_syntax_valid: Mapped[bool] = mapped_column(Boolean, default=False)
 
     job = relationship("VerificationJob", back_populates="records")

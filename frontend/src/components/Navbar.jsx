@@ -1,5 +1,5 @@
 import React from 'react';
-import { MailCheck, History, Shield, Github } from 'lucide-react';
+import { MailCheck, History, Shield, Github, BookMarked } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   return (
@@ -42,6 +42,17 @@ export default function Navbar({ activeTab, setActiveTab }) {
             >
               <History className="w-4 h-4" />
               Job History
+            </button>
+            <button
+              onClick={() => setActiveTab('known')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'known'
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <BookMarked className="w-4 h-4" />
+              Known Emails
             </button>
           </nav>
         </div>
