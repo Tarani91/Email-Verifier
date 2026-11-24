@@ -2,6 +2,8 @@
 
 A production-ready, open-source email verification web application designed to clean, validate, and report email list quality similar to ZeroBounce and NeverBounce without requiring any paid APIs.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Tarani91/Email-Verifier)
+
 ---
 
 ## Key Features

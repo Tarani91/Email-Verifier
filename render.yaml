@@ -1,17 +1,9 @@
 services:
   - type: web
-    name: email-verifier-backend
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    name: email-verifier
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
-      - key: CORS_ORIGINS
-        value: '["https://email-verifier-app.netlify.app","http://localhost:5173","http://localhost:3000"]'
-    disk:
-      name: email-verifier-data
-      mountPath: /opt/render/project/src/backend
-      sizeGB: 1
